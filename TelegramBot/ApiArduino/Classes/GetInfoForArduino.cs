@@ -12,10 +12,15 @@ namespace TelegramBot.ApiArduino.Classes
     /// </summary>
     internal class GetInfoForArduino : IArduinoExecutable
     {
-        public string Exec(IArduinoConnectable arduino, IEnumerable<string> param)
+        private string Executer(IEnumerable<string> param)
+        {
+            return "Передали настройки и данные с датчиков";
+        }
+
+        public async Task<string> ExecAsync(IArduinoConnectable arduino, IEnumerable<string> param)
         {
             arduino.WifiConnect();
-            return "Передали настройки и данные с датчиков";
+            return await Task.Run(() => Executer(param));
         }
     }
 }

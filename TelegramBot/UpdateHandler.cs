@@ -61,28 +61,28 @@ namespace TelegramBot
                             case "Получить информацию с датчика влажности":
                                 arduino = new ConnectToArduino(new List<string> { "firstParamConnect", "secondParamConnect" }, ConnectToArduino.TypeConnect.WIFI);
                                 command = new GetInfoForArduino();
-                                responsToClient = command.Exec(arduino, new List<string> { "firstParamCommand", "secondCommand" });
+                                responsToClient = await command.ExecAsync(arduino, new List<string> { "firstParamCommand", "secondCommand" });
                                 await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
                                 break;
 
                             case "Настройки автополива по времени и влажности":
                                 arduino = new ConnectToArduino(new List<string> { "firstParamConnect", "secondParamConnect" }, ConnectToArduino.TypeConnect.WIFI);
                                 command = new SetParamForArduino();
-                                responsToClient = command.Exec(arduino, new List<string> { "firstParamCommand", "secondCommand" });
+                                responsToClient = await command.ExecAsync(arduino, new List<string> { "firstParamCommand", "secondCommand" });
                                 await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
                                 break;
 
                             case "Включить ручной полив":
                                 arduino = new ConnectToArduino(new List<string> { "firstParamConnect", "secondParamConnect" }, ConnectToArduino.TypeConnect.WIFI);
                                 command = new ArduinoTakeWater();
-                                responsToClient = command.Exec(arduino, new List<string> { "firstParamCommand", "secondCommand" });
+                                responsToClient = await command.ExecAsync(arduino, new List<string> { "firstParamCommand", "secondCommand" });
                                 await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
                                 break;
 
                             case "Выключить ручной полив":
                                 arduino = new ConnectToArduino(new List<string> { "firstParamConnect", "secondParamConnect" }, ConnectToArduino.TypeConnect.WIFI);
                                 command = new ArduinoStopWater();
-                                responsToClient = command.Exec(arduino, new List<string> { "firstParamCommand", "secondCommand" });
+                                responsToClient = await command.ExecAsync(arduino, new List<string> { "firstParamCommand", "secondCommand" });
                                 await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
                                 break;
 

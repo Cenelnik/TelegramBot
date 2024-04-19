@@ -7,10 +7,16 @@ namespace TelegramBot.ApiArduino.Classes
     /// </summary>
     internal class ArduinoStopWater : IArduinoExecutable
     {
-        public string Exec(IArduinoConnectable arduino, IEnumerable<string> param)
+
+        private string Executer(IEnumerable<string> param)
+        {
+            return $"Остановка подачи воды через {param.First()}";
+        }
+
+        public async Task<string> ExecAsync(IArduinoConnectable arduino, IEnumerable<string> param)
         {
             arduino.WifiConnect();
-            return $"Остановка подачи воды через {param.First()}";
+            return await Task.Run(() => Executer(param));
         }
     }
 }

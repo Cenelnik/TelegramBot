@@ -18,6 +18,6 @@ namespace TelegramBot.ApiArduino.Interfaces
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        public string Exec(IArduinoConnectable arduino, IEnumerable<string> param);
+        public  Task<string> ExecAsync(IArduinoConnectable arduino, IEnumerable<string> param);
     }
 }

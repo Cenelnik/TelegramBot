@@ -15,15 +15,19 @@ namespace TelegramBot.ApiArduino.Classes
     internal class SetParamForArduino : IArduinoExecutable
     {
         private List<string> _param = new List<string>();
-
-        public string Exec(IArduinoConnectable arduino, IEnumerable<string> param)
+        private string Executer(IEnumerable<string> param)
         {
-            foreach(string curParam in param)
+            foreach (string curParam in param)
             {
                 _param.Add(curParam);
             }
+            return  $"Установили след. настройки. Полив по времени: {_param[0]} Полив по проценту влажности: {_param[1]}";
+        }
+        public async Task<string> ExecAsync(IArduinoConnectable arduino, IEnumerable<string> param)
+        {
+            
             arduino.WifiConnect();
-            return $"Установили след. настройки. Полив по времени: {_param[0]} Полив по проценту влажности: {_param[1]}";
+            return await Task.Run(() => Executer(param));  
         }
     }
 }
