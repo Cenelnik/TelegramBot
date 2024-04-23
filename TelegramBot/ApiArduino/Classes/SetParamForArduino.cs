@@ -10,10 +10,19 @@ namespace TelegramBot.ApiArduino.Classes
 {
     /// <summary>
     /// Класс реализующий установку параметров для ардуино
-    /// Предполагается, что можно установить таймер подачи воды или подачу воды по проценту влажности почвы.
+    /// Реализует IArduinoExecutable.HttpExecAsync.
     /// </summary>
     internal class SetParamForArduino : IArduinoExecutable
     {
+        private string _host = "195.168.1.15";
+        private string _port = "80";
+
+        public SetParamForArduino(string host , string port)
+        {
+            _host = host;
+            _port = port;
+        }
+
         private List<string> _param = new List<string>();
         private string Executer(IEnumerable<string> param)
         {
@@ -23,10 +32,10 @@ namespace TelegramBot.ApiArduino.Classes
             }
             return  $"Установили след. настройки. Полив по времени: {_param[0]} Полив по проценту влажности: {_param[1]}";
         }
-        public async Task<string> ExecAsync(IArduinoConnectable arduino, IEnumerable<string> param)
+        public async Task<string> HttpExecAsync(HttpClient client, IEnumerable<string> param)
         {
-            
-            arduino.WifiConnect();
+            CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+            CancellationToken token = cancelTokenSource.Token;
             return await Task.Run(() => Executer(param));  
         }
     }

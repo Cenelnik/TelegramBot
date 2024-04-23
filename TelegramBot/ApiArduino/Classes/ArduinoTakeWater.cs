@@ -9,26 +9,32 @@ namespace TelegramBot.ApiArduino.Classes
 {
     /// <summary>
     /// Класс реализующий подачу воды для растений через Ардуино.
+    /// Реализует IArduinoExecutable.HttpExecAsync.
     /// </summary>
     internal class ArduinoTakeWater : IArduinoExecutable
     {
-        internal async Task<string> TakeWater(int time, CancellationToken t)
+        private string _host;
+        private string _port;
+
+        public ArduinoTakeWater(string host = @"http://192.168.1.15", string port = "80")
+        {
+            _host = host;
+            _port = port;
+        }
+        private async Task<string> TakeWater(int time, CancellationToken t)
         {
             
             using var client = new HttpClient();
-
-            var result = await client.GetAsync("http://webcode.me");
+            var result = await client.GetAsync($"{_host}", t);
             return result.StatusCode.ToString();
         }
 
-        public async Task<string> ExecAsync(IArduinoConnectable arduino, IEnumerable<string> param)
+
+        public async Task<string> HttpExecAsync(HttpClient client, IEnumerable<string> param)
         {
             CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
             CancellationToken token = cancelTokenSource.Token;
-            arduino.WifiConnect();
-            //await TakeWater(10, token);
             return $"Начали подачу воды на {param.First()}. Статус выполненой задачи {await TakeWater(10, token)}";
-            
         }
     }
 }

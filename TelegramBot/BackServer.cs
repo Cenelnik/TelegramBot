@@ -12,7 +12,7 @@ namespace TelegramBot
     /// </summary>
     class BackServer
     {
-        private static string tokenForBot = "************";
+        private static string tokenForBot = "***********";
         private static TelegramBotClient ?_botClient;
         private static ReceiverOptions ?_receiverOptions;
 

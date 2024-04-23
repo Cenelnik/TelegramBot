@@ -6,15 +6,17 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBot.ApiArduino.Interfaces;
 using TelegramBot.ApiArduino.Classes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TelegramBot
 {
     internal  class UpdateHandler : IUpdateHandler
     {
         private  delegate void Logger(Message msg, string st);
-        private IArduinoConnectable arduino;
-        private IArduinoExecutable command;
+        private IArduinoExecutable Command;
         private string responsToClient = "";
+
+        
         public async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             Console.WriteLine($"MSG = {exception.Message}; \nTRACE = {exception.StackTrace}");
@@ -44,84 +46,82 @@ namespace TelegramBot
 
         private  async void MainWorker(Update update, ITelegramBotClient botClient)
         {
+            ServiceCollection services = new ServiceCollection();
+            services.AddHttpClient();
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            var httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
+
             switch (update.Type)
             {
                 case UpdateType.Message:
+                    
+                    var message = update.Message;
+                    User ?user = message.From;
+
+                    Logger log = LogBot;
+                    log(update.Message, "");
+
+                    switch(message.Text)
                     {
-                        //Информация о сообщении
-                        var message = update.Message;
-                        // From - это от кого пришло сообщение (или любой другой Update)
-                        User ?user = message.From;
+                        case "Получить информацию с датчика влажности":
+                            Command = new GetInfoForArduino("http://192.168.1.115", "80");
+                            responsToClient = await Command.HttpExecAsync(httpClientFactory.CreateClient(), new List<string> { "firstParamCommand", "secondCommand" });
+                            await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
+                            break;
 
-                        Logger log = LogBot;
-                        log(update.Message, "");
+                        case "Настройки автополива по времени и влажности":
+                            Command = new SetParamForArduino("http://192.168.1.115", "80");
+                            responsToClient = await Command.HttpExecAsync(httpClientFactory.CreateClient(), new List<string> { "firstParamCommand", "secondCommand" });
+                            await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
+                            break;
 
-                        switch(message.Text)
-                        {
-                            case "Получить информацию с датчика влажности":
-                                arduino = new ConnectToArduino(new List<string> { "firstParamConnect", "secondParamConnect" }, ConnectToArduino.TypeConnect.WIFI);
-                                command = new GetInfoForArduino();
-                                responsToClient = await command.ExecAsync(arduino, new List<string> { "firstParamCommand", "secondCommand" });
-                                await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
-                                break;
+                        case "Включить ручной полив":
+                            Command = new ArduinoTakeWater("http://192.168.1.115", "80");
+                            responsToClient = await Command.HttpExecAsync(httpClientFactory.CreateClient(), new List<string> { "firstParamCommand", "secondCommand" });
+                            await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
+                            break;
 
-                            case "Настройки автополива по времени и влажности":
-                                arduino = new ConnectToArduino(new List<string> { "firstParamConnect", "secondParamConnect" }, ConnectToArduino.TypeConnect.WIFI);
-                                command = new SetParamForArduino();
-                                responsToClient = await command.ExecAsync(arduino, new List<string> { "firstParamCommand", "secondCommand" });
-                                await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
-                                break;
+                        case "Выключить ручной полив":
+                            Command = new ArduinoStopWater("http://192.168.1.115", "80");
+                            responsToClient = await Command.HttpExecAsync(httpClientFactory.CreateClient(), new List<string> { "firstParamCommand", "secondCommand" });
+                            await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
 
-                            case "Включить ручной полив":
-                                arduino = new ConnectToArduino(new List<string> { "firstParamConnect", "secondParamConnect" }, ConnectToArduino.TypeConnect.WIFI);
-                                command = new ArduinoTakeWater();
-                                responsToClient = await command.ExecAsync(arduino, new List<string> { "firstParamCommand", "secondCommand" });
-                                await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
-                                break;
+                            break;
 
-                            case "Выключить ручной полив":
-                                arduino = new ConnectToArduino(new List<string> { "firstParamConnect", "secondParamConnect" }, ConnectToArduino.TypeConnect.WIFI);
-                                command = new ArduinoStopWater();
-                                responsToClient = await command.ExecAsync(arduino, new List<string> { "firstParamCommand", "secondCommand" });
-                                await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"{responsToClient}");
-                                break;
+                        default:
 
-                            default:
-
-                                var replyKeyboard = new ReplyKeyboardMarkup(
-                                    new List<KeyboardButton[]>()
-                                    {
-                                        new KeyboardButton[]
-                                        {
-                                            new KeyboardButton("Получить информацию с датчика влажности")
-                                        },
-                                        new KeyboardButton[]
-                                        {
-                                            new KeyboardButton("Настройки автополива по времени и влажности")
-                                        },
-                                        new KeyboardButton[]
-                                        {
-                                            new KeyboardButton("Включить ручной полив"),
-                                            new KeyboardButton("Выключить ручной полив"),
-                                        }
-                                    })
+                            var replyKeyboard = new ReplyKeyboardMarkup(
+                                new List<KeyboardButton[]>()
                                 {
-                                    // автоматическое изменение размера клавиатуры, если не стоит true,
-                                    // тогда клавиатура растягивается чуть ли не до луны,
-                                    // проверить можете сами
-                                    ResizeKeyboard = true,
-                                };
-                                // опять передаем клавиатуру в параметр replyMarkup
-                                await botClient.SendTextMessageAsync(message.Chat.Id, "Стартовое меню:", replyMarkup: replyKeyboard); 
+                                    new KeyboardButton[]
+                                    {
+                                        new KeyboardButton("Получить информацию с датчика влажности")
+                                    },
+                                    new KeyboardButton[]
+                                    {
+                                        new KeyboardButton("Настройки автополива по времени и влажности")
+                                    },
+                                    new KeyboardButton[]
+                                    {
+                                        new KeyboardButton("Включить ручной полив"),
+                                        new KeyboardButton("Выключить ручной полив"),
+                                    }
+                                })
+                            {
+                                ResizeKeyboard = true,
+                            };
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Стартовое меню:", replyMarkup: replyKeyboard); 
 
-                                break;
-                        }
-                        
-
-                        return;
-
+                            break;
                     }
+
+                    break;
+                    
+                default:
+                    break;
+
             }
+            return;
         }
 
         internal void LogBot(Message msg, string addMsg)
