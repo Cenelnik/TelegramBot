@@ -18,16 +18,19 @@ namespace TelegramBot.ApiArduino.Classes
             _port = port;
         }
 
-        private string Executer(IEnumerable<string> param)
+        private async Task<string> StopWater(int time, CancellationToken t)
         {
-            return $"Остановка подачи воды через {param.First()}";
+
+            using var client = new HttpClient();
+            var result = await client.GetAsync($"{_host}/?RelayPumpIn1=0", t);
+            return result.StatusCode.ToString();
         }
 
         public async Task<string> HttpExecAsync(HttpClient client, IEnumerable<string> param)
         {
             CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
             CancellationToken token = cancelTokenSource.Token;
-            return await Task.Run(() => Executer(param));
+            return $"Остановили подачу воды. Статус выполненой задачи {await StopWater(10, token)}";
         }
     }
 }

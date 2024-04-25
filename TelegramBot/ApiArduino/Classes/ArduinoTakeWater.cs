@@ -25,7 +25,7 @@ namespace TelegramBot.ApiArduino.Classes
         {
             
             using var client = new HttpClient();
-            var result = await client.GetAsync($"{_host}", t);
+            var result = await client.GetAsync($"{_host}/?RelayPumpIn1=1", t);
             return result.StatusCode.ToString();
         }
 
@@ -34,7 +34,7 @@ namespace TelegramBot.ApiArduino.Classes
         {
             CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
             CancellationToken token = cancelTokenSource.Token;
-            return $"Начали подачу воды на {param.First()}. Статус выполненой задачи {await TakeWater(10, token)}";
+            return $"Начали подачу воды. Статус выполненой задачи {await TakeWater(10, token)}";
         }
     }
 }
