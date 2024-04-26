@@ -1,0 +1,40 @@
+{
+  "ArduinoDevice": [
+    {
+      "name": "Home Arduino1",
+      "host": "http://192.168.1.115",
+      "port": "80",
+      "type": "WetControlOfGround",
+      "comands": [
+        {
+          "name": "GetInfo",
+          "valuecomand": ""
+        },
+        {
+          "name": "StopWater",
+          "valuecomand": "RelayPumpIn1=0"
+        },
+        {
+          "name": "GetWater",
+          "valuecomand": "RelayPumpIn1=1"
+        },
+        {
+          "name": "SetParam",
+          "valuecomand": "Time=*&MinProcentOfWet=*"
+        }
+      ]
+    },
+    {
+      "name": "Test",
+      "host": "http://192.168.1.120",
+      "port": "80",
+      "type": "TEST",
+      "comands": [
+        {
+          "Name": "TestName",
+          "valuecomand": "TestValue"
+        }
+      ]
+    }
+  ]
+}

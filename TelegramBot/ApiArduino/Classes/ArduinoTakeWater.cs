@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TelegramBot.ApiArduino.Interfaces;
+using TelegramBot.ApiArduino.Models;
 
 namespace TelegramBot.ApiArduino.Classes
 {
@@ -13,19 +14,17 @@ namespace TelegramBot.ApiArduino.Classes
     /// </summary>
     internal class ArduinoTakeWater : IArduinoExecutable
     {
-        private string _host;
-        private string _port;
+        private ArduinoModel _arduino;
 
-        public ArduinoTakeWater(string host = @"http://192.168.1.15", string port = "80")
+        public ArduinoTakeWater(ArduinoModel arduino)
         {
-            _host = host;
-            _port = port;
+            _arduino = arduino;
         }
         private async Task<string> TakeWater(int time, CancellationToken t)
         {
             
             using var client = new HttpClient();
-            var result = await client.GetAsync($"{_host}/?RelayPumpIn1=1", t);
+            var result = await client.GetAsync($"{_arduino.Host}/?{_arduino.Comands.Where(c => c.Name == "GetWater").First().ValueComand}", t);
             return result.StatusCode.ToString();
         }
 

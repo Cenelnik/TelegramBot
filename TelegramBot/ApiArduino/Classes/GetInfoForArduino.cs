@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TelegramBot.ApiArduino.Interfaces;
+using TelegramBot.ApiArduino.Models;
 
 namespace TelegramBot.ApiArduino.Classes
 {
@@ -12,13 +13,11 @@ namespace TelegramBot.ApiArduino.Classes
     /// </summary>
     internal class GetInfoForArduino : IArduinoExecutable
     {
-        private string _host;
-        private string _port;
+        ArduinoModel _arduino;
 
-        public GetInfoForArduino(string host = "http://192.168.1.15", string port = "80")
+        public GetInfoForArduino(ArduinoModel arduino)
         {
-            _host = host;
-            _port = port;
+            _arduino = arduino;
         }
         /// <summary>
         /// На ардуине поднят http сервис, который отдает данные с датчика влажности.
@@ -29,7 +28,7 @@ namespace TelegramBot.ApiArduino.Classes
         /// <returns></returns>
         internal async Task<string> GetInfo(HttpClient client, CancellationToken t)
         {
-            using HttpResponseMessage result =  await client.GetAsync(_host, t);
+            using HttpResponseMessage result =  await client.GetAsync(_arduino.Host, t);
             string responseBody = await result.Content.ReadAsStringAsync(t);
             return $"Влажность: { GetValue(responseBody, "Влажность:")}\nВключать полив при влажности менее чем: { GetValue(responseBody, "Включать полив при влажности менее чем:")}\nВремя: { GetValue(responseBody, "Время:")}\n";
         }
@@ -45,7 +44,7 @@ namespace TelegramBot.ApiArduino.Classes
             catch(Exception ex)
             {
                 Console.WriteLine($"{ex.Message} \n {ex.StackTrace}" );
-                return $"Удаленный Ардуино {_host} не доступен.";
+                return $"Удаленный Ардуино {_arduino.Host} не доступен.";
             }
         }
 

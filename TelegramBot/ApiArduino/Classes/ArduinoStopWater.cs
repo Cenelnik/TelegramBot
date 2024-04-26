@@ -1,4 +1,5 @@
 ﻿using TelegramBot.ApiArduino.Interfaces;
+using TelegramBot.ApiArduino.Models;
 
 namespace TelegramBot.ApiArduino.Classes
 {
@@ -9,20 +10,18 @@ namespace TelegramBot.ApiArduino.Classes
     internal class ArduinoStopWater : IArduinoExecutable
     {
 
-        private string _host = "195.168.1.15";
-        private string _port = "80";
+        private ArduinoModel _arduino;
 
-        public ArduinoStopWater(string host = @"http://192.168.1.15", string port = "80")
+        public ArduinoStopWater(ArduinoModel arduino)
         {
-            _host = host;
-            _port = port;
+            _arduino = arduino;
         }
 
         private async Task<string> StopWater(int time, CancellationToken t)
         {
 
             using var client = new HttpClient();
-            var result = await client.GetAsync($"{_host}/?RelayPumpIn1=0", t);
+            var result = await client.GetAsync($"{_arduino.Host}/?{_arduino.Comands.Where(c => c.Name == "StopWater").First().ValueComand}", t);
             return result.StatusCode.ToString();
         }
 
