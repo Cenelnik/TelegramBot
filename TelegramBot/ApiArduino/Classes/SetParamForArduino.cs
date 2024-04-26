@@ -5,25 +5,37 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TelegramBot.ApiArduino.Interfaces;
+using TelegramBot.ApiArduino.Models;
 
 namespace TelegramBot.ApiArduino.Classes
 {
     /// <summary>
     /// Класс реализующий установку параметров для ардуино
-    /// Предполагается, что можно установить таймер подачи воды или подачу воды по проценту влажности почвы.
+    /// Реализует IArduinoExecutable.HttpExecAsync.
     /// </summary>
     internal class SetParamForArduino : IArduinoExecutable
     {
-        private List<string> _param = new List<string>();
+        private ArduinoModel _arduino;
 
-        public string Exec(IArduinoConnectable arduino, IEnumerable<string> param)
+        public SetParamForArduino(ArduinoModel arduino)
         {
-            foreach(string curParam in param)
+            arduino = _arduino;
+        }
+
+        private List<string> _param = new List<string>();
+        private string Executer(IEnumerable<string> param)
+        {
+            foreach (string curParam in param)
             {
                 _param.Add(curParam);
             }
-            arduino.WifiConnect();
-            return $"Установили след. настройки. Полив по времени: {_param[0]} Полив по проценту влажности: {_param[1]}";
+            return  $"Установили след. настройки для {_arduino.Name} Полив по времени: {_param[0]} Полив по проценту влажности: {_param[1]}";
+        }
+        public async Task<string> HttpExecAsync(HttpClient client, IEnumerable<string> param)
+        {
+            CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+            CancellationToken token = cancelTokenSource.Token;
+            return await Task.Run(() => Executer(param));  
         }
     }
 }

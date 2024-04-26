@@ -12,34 +12,31 @@ namespace TelegramBot
     /// </summary>
     class BackServer
     {
-        private static string tokenForBot = "****************";
+        private static string tokenForBot = "********************";
         private static TelegramBotClient ?_botClient;
         private static ReceiverOptions ?_receiverOptions;
 
         public static async Task Main(string[] args)
         {
             _botClient = new TelegramBotClient(tokenForBot);
-            _receiverOptions = new ReceiverOptions // Также присваем значение настройкам бота
+            _receiverOptions = new ReceiverOptions 
             {
-                AllowedUpdates = new[] // Тут указываем типы получаемых Update`ов, о них подробнее расказано тут https://core.telegram.org/bots/api#update
+                AllowedUpdates = new[] 
                 {
-                    UpdateType.Message, // Сообщения (текст, фото/видео, голосовые/видео сообщения и т.д.)
+                    UpdateType.Message, 
                 },
-                // Параметр, отвечающий за обработку сообщений, пришедших за то время, когда ваш бот был оффлайн
-                // True - не обрабатывать, False (стоит по умолчанию) - обрабаывать
                 ThrowPendingUpdates = true,
             };
 
             using var cts = new CancellationTokenSource();
 
-            _botClient.StartReceiving(new UpdateHandler(), _receiverOptions, cts.Token); // Запускаем бота
+            _botClient.StartReceiving(new UpdateHandler(), _receiverOptions, cts.Token); 
 
-            var me = await _botClient.GetMeAsync(); // Создаем переменную, в которую помещаем информацию о нашем боте.
-            
+            var me = await _botClient.GetMeAsync(); 
             
             Console.WriteLine($"{me.FirstName} запущен!");
 
-            await Task.Delay(-1); // Устанавливаем бесконечную задержку, чтобы наш бот работал постоянно
+            await Task.Delay(-1); 
         }
     }
 }

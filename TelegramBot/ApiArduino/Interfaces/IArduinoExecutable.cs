@@ -12,12 +12,12 @@ namespace TelegramBot.ApiArduino.Interfaces
     public interface IArduinoExecutable
     {
         /// <summary>
-        /// Метод реализующий какую-либо команду для Ардуино. 
-        /// На вход подаем объект arduino, к которому мы подсоединились и коллекцию строк. 
-        /// На выходе ожидаем от Ардуино какой то ответ в виде строки.
+        /// Подключаемся к Ардуино по Http и 
+        /// Исполняем что то (возможно нужны будут параметры)
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        public string Exec(IArduinoConnectable arduino, IEnumerable<string> param);
+        public  Task<string> HttpExecAsync(HttpClient client, IEnumerable<string> param);
+
     }
 }
